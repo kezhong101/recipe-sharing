@@ -1,16 +1,11 @@
 import mongoose, { Schema } from 'mongoose'
-const postSchema = new Schema(
+const recipeSchema = new Schema(
   {
     title: { type: String, required: true },
-    ingredients: [
-      {
-        name: { type: String, required: true },
-        amount: { type: String },
-      },
-    ],
-    author: String,
+    author: { type: Schema.Types.ObjectId, ref: 'user', required: true },
+    ingredients: { type: String, required: true },
     image_url: String,
   },
   { timestamps: true },
 )
-export const Recipe = mongoose.model('recipe', postSchema)
+export const Recipe = mongoose.model('recipe', recipeSchema)
