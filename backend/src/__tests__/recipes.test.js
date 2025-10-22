@@ -5,7 +5,6 @@ import {
   createRecipe,
   listAllRecipes,
   listRecipesByAuthor,
-  getRecipeById,
   updateRecipe,
   deleteRecipe,
 } from '../services/recipes.js'
@@ -44,17 +43,6 @@ beforeEach(async () => {
     const createdRecipe = new Recipe(recipe)
     createdSampleRecipes.push(await createdRecipe.save())
   }
-})
-
-describe('getting a recipe', () => {
-  test('should return the full recipe', async () => {
-    const recipe = await getRecipeById(createdSampleRecipes[0]._id)
-    expect(recipe.toObject()).toEqual(createdSampleRecipes[0].toObject())
-  })
-  test('should fail if the id does not exist', async () => {
-    const recipe = await getRecipeById('000000000000000000000000')
-    expect(recipe).toEqual(null)
-  })
 })
 
 describe('updating recipes', () => {

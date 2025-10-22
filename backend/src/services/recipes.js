@@ -10,7 +10,31 @@ async function listRecipes(
   query = {},
   { sortBy = 'createdAt', sortOrder = 'descending' } = {},
 ) {
-  return await Recipe.find(query).sort({ [sortBy]: sortOrder })
+  const sortDirection = sortOrder === 'descending' ? -1 : 1
+  return await Recipe.aggregate([
+    { $match: query },
+    {
+      $lookup: {
+        from: 'likes',
+        localField: '_id',
+        foreignField: 'recipe',
+        as: 'likes',
+      },
+    },
+    {
+      $addFields: {
+        likeCount: { $size: '$likes' },
+      },
+    },
+    {
+      $sort: { [sortBy]: sortDirection },
+    },
+    {
+      $project: {
+        likes: 0, // Remove the likes array from the response
+      },
+    },
+  ])
 }
 
 export async function listAllRecipes(options) {
@@ -24,7 +48,28 @@ export async function listRecipesByAuthor(authorUsername, options) {
 }
 
 export async function getRecipeById(recipeId) {
-  return await Recipe.findById(recipeId)
+  const [recipe] = await Recipe.aggregate([
+    { $match: { _id: recipeId } },
+    {
+      $lookup: {
+        from: 'likes',
+        localField: '_id',
+        foreignField: 'recipe',
+        as: 'likes',
+      },
+    },
+    {
+      $addFields: {
+        likeCount: { $size: '$likes' },
+      },
+    },
+    {
+      $project: {
+        likes: 0, // Remove the likes array from the response
+      },
+    },
+  ])
+  return recipe
 }
 
 export async function updateRecipe(userId, recipeId, updates) {
